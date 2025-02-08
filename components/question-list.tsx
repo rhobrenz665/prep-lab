@@ -1,40 +1,63 @@
+import { useState, useEffect, useCallback } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
+import QuestionCard from "@/components/question-card";
+import { Category } from "./categories";
 
-"use client";
-import QuestionCard from '@/components/question-card'
+interface Question {
+  id: number;
+  question_text: string;
+  expected_answer: string;
+  category_id?: number;
+}
 
-import { useState, useEffect } from "react";
+const QuestionList = ({ selectedCategory }: { selectedCategory: Category | null }) => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = 10;
 
-export default function QuestionList() {
-    const [questions, setQuestions] = useState<{ id: number, question_text: string; expected_answer: string }[]>([]);
-    const [loading, setLoading] = useState(true);
-  
-    useEffect(() => {
-      const fetchQuestions = async () => {
-        try {
-          const response = await fetch("/api/questions");
-          const data = await response.json();
-          setQuestions(data);
-        } catch (error) {
-          console.error("Error fetching questions:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchQuestions();
-    }, []);
-  
-    return (
-      <div className="max-w-5xl mx-auto p-6">
-        {loading ? (
-          <p className="text-center">Loading questions...</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {questions.map((q) => (
-              <QuestionCard key={q.id} question={q.question_text} answer={q.expected_answer} />
-            ))}
-          </div>
-        )}
+  const fetchQuestions = useCallback(async (newPage: number) => {
+    try {
+      const categoryParam = selectedCategory ? `&categoryId=${selectedCategory.id}` : "";
+      const response = await fetch(`/api/questions?page=${newPage}&limit=${limit}${categoryParam}`);
+      
+      if (!response.ok) throw new Error("Failed to fetch questions");
+
+      const newQuestions: Question[] = await response.json();
+
+      setQuestions((prev) => (newPage === 1 ? newQuestions : [...prev, ...newQuestions]));
+
+      setHasMore(newQuestions.length === limit);
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+      setHasMore(false);
+    }
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    setPage(1);
+    setQuestions([]);
+    fetchQuestions(1);
+  }, [selectedCategory, fetchQuestions]);
+
+  return (
+    <InfiniteScroll
+      dataLength={questions.length}
+      next={() => {
+        setPage((prev) => prev + 1);
+        fetchQuestions(page + 1);
+      }}
+      hasMore={hasMore}
+      loader={<p className="text-center">Loading more questions...</p>}
+      endMessage={<p className="text-center text-gray-500">No more questions available.</p>}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {questions.map((q) => (
+          <QuestionCard key={q.id} question={q.question_text} answer={q.expected_answer} />
+        ))}
       </div>
-    );
-  }
+    </InfiniteScroll>
+  );
+};
+
+export default QuestionList;

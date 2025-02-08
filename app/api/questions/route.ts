@@ -4,9 +4,43 @@ import sql from "@/lib/db";
 export const runtime = "edge";
 
 //GET All questions
-export async function GET() {
+// export async function GET() {
+//   try {
+//     const data = await sql`SELECT * FROM questions ORDER BY created_at DESC;`;
+//     return NextResponse.json(data);
+//   } catch (error) {
+//     console.error("Database Error:", error);
+//     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
+//   }
+// }
+//GET Questions
+export async function GET(req: Request) {
   try {
-    const data = await sql`SELECT * FROM questions ORDER BY created_at DESC;`;
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const offset = (page - 1) * limit;
+    const categoryId = searchParams.get("categoryId");
+
+    console.log(searchParams)
+
+    let data;
+
+    if (categoryId && categoryId !== "0") {
+      data = await sql`
+        SELECT * FROM questions 
+        WHERE category_id = ${categoryId} 
+        ORDER BY created_at DESC 
+        LIMIT ${limit} OFFSET ${offset};
+      `;
+    } else {
+      data = await sql`
+        SELECT * FROM questions 
+        ORDER BY created_at DESC 
+        LIMIT ${limit} OFFSET ${offset};
+      `;
+    }
+
     return NextResponse.json(data);
   } catch (error) {
     console.error("Database Error:", error);
