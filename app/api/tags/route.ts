@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import sql from "@/lib/db";
 
-// 📌 GET all tags
+// GET all tags
 export async function GET() {
     try {
         const tags = await sql`SELECT * FROM tags;`;
@@ -12,7 +12,7 @@ export async function GET() {
     }
 }
 
-// 📌 POST a new tag
+// POST a new tag
 export async function POST(req: Request) {
     try {
         const { tag_name } = await req.json();

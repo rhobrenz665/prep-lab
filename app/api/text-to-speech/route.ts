@@ -2,20 +2,37 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { text } = await req.json();
+    const { text, ssml } = await req.json();
+    //ssml ready(to do)
+    const input = ssml ? { ssml } : { text }; 
 
     if (!text) {
-      return NextResponse.json({ error: 'Text is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Question is required' }, { status: 400 });
     }
 
     // API Key from environment variables
     const apiKey = process.env.GOOGLE_API_KEY;
     const apiUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
 
+    // const requestBody = {
+    //   input,
+    //   voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
+    //   audioConfig: { audioEncoding: 'MP3' },
+    // };
+
     const requestBody = {
-      input: { text },
-      voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
-      audioConfig: { audioEncoding: 'MP3' },
+      input,
+      voice: { 
+        languageCode: "en-US", 
+        name: "en-US-Wavenet-F",
+        ssmlGender: "FEMALE" 
+      },
+      audioConfig: { 
+        audioEncoding: "MP3",
+        speakingRate: 0.95,
+        pitch: 2.0, 
+        volumeGainDb: 1.0,
+      }
     };
 
     // Send request to Google Text-to-Speech API

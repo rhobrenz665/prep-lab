@@ -1,8 +1,10 @@
+import QuestionList from "./question-list";
+
 const InterviewPrep = () => {
     return (
       <div>
-        <h2 className="text-xl font-bold">Interview Questions</h2>
-        <p>Here you will see the list of questions.</p>
+        <h2 className="text-xl font-bold">Interview Questions & Answers</h2>
+        <QuestionList />
       </div>
     );
   };
