@@ -1,11 +1,3 @@
-import React from 'react';
-
-interface Props {
-  message: string;
+export default function Page() {
+  return <div>ahhahaha</div>;
 }
-
-const Page: React.FC<Props> = ({ message }) => {
-  return <div>ahhahaha {message}</div>;
-};
-
-export default Page;
