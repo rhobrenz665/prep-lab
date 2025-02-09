@@ -30,13 +30,11 @@ export async function GET(req: Request) {
       data = await sql`
         SELECT * FROM questions 
         WHERE category_id = ${categoryId} 
-        ORDER BY created_at DESC 
         LIMIT ${limit} OFFSET ${offset};
       `;
     } else {
       data = await sql`
-        SELECT * FROM questions 
-        ORDER BY created_at DESC 
+        SELECT * FROM questions  
         LIMIT ${limit} OFFSET ${offset};
       `;
     }

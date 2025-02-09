@@ -21,11 +21,14 @@ const QuestionList = ({ selectedCategory }: { selectedCategory: Category | null 
       const categoryParam = selectedCategory ? `&categoryId=${selectedCategory.id}` : "";
       const response = await fetch(`/api/questions?page=${newPage}&limit=${limit}${categoryParam}`);
       
+      
       if (!response.ok) throw new Error("Failed to fetch questions");
 
       const newQuestions: Question[] = await response.json();
 
-      setQuestions((prev) => (newPage === 1 ? newQuestions : [...prev, ...newQuestions]));
+      setQuestions((prev) => {
+        return (newPage === 1 ? newQuestions : [...prev, ...newQuestions])
+      });
 
       setHasMore(newQuestions.length === limit);
     } catch (error) {

@@ -3,10 +3,12 @@
 import Tabs from "@/components/tabs";
 import InterviewPrep from "@/components/interview-prep";
 import OtherTab from "@/components/other-tab";
+import Reviewer from "@/components/reviewer";
 
 export default function Home() {
   const tabs = [
     { name: "Interview", component: <InterviewPrep /> },
+    { name: "Reviewer", component: <Reviewer /> },
     { name: "Other Tab", component: <OtherTab /> },
   ];
 
