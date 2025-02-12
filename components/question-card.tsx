@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 const QuestionCard = ({ question, answer }: { question: string; answer: string }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -10,12 +11,13 @@ const QuestionCard = ({ question, answer }: { question: string; answer: string }
 //   };
 
 const speakQuestion = async (question: string) => {
-    console.log(question);
+    const text = fixPronunciation(question);
+
     try {
       const response = await fetch("/api/text-to-speech", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: question }),
+        body: JSON.stringify({ ssml: text }),
       });
   
       if (!response.ok) throw new Error("API request failed");
@@ -38,6 +40,13 @@ const speakQuestion = async (question: string) => {
     }
   };
 
+  const fixPronunciation = (text: string) => {
+    return text
+      .replace(/C#(?=[.,!?;:]|\s|$)/g, '<sub alias="C-Sharp">C#</sub>') 
+      .replace(/\bOOP\b/g, '<say-as interpret-as="characters">O O P</say-as>');
+  };
+  
+  
   return (
     <div className="bg-white shadow-lg rounded-lg p-4 mb-4 border border-gray-200">
       <h2 className="text-lg font-semibold">{question}</h2>
@@ -49,7 +58,10 @@ const speakQuestion = async (question: string) => {
           {isVisible ? "Hide Answer" : "Show Answer"}
         </button>
       </div>
-      {isVisible && <p className="mt-2 text-gray-700">{answer}</p>}
+      {/* {isVisible && <p className="mt-2 text-gray-700">
+        <ReactMarkdown>{answer}</ReactMarkdown>
+      </p>} */}
+      {isVisible &&  <ReactMarkdown>{answer}</ReactMarkdown>}
     </div>
   );
 };

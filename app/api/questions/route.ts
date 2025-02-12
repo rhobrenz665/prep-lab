@@ -22,8 +22,6 @@ export async function GET(req: Request) {
     const offset = (page - 1) * limit;
     const categoryId = searchParams.get("categoryId");
 
-    console.log(searchParams)
-
     let data;
 
     if (categoryId && categoryId !== "0") {

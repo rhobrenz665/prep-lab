@@ -3,12 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const { text, ssml } = await req.json();
-    //ssml ready(to do)
-    const input = ssml ? { ssml } : { text }; 
 
-    if (!text) {
-      return NextResponse.json({ error: 'Question is required' }, { status: 400 });
+    if (!text && !ssml) {
+      return NextResponse.json({ error: 'Either text or SSML is required' }, { status: 400 });
     }
+
+    // Ensure SSML is wrapped properly
+    const input = ssml 
+      ? { ssml: `<speak>${ssml}</speak>` } 
+      : { text };
 
     // API Key from environment variables
     const apiKey = process.env.GOOGLE_API_KEY;
@@ -34,6 +37,8 @@ export async function POST(req: NextRequest) {
         volumeGainDb: 1.0,
       }
     };
+
+    console.log(requestBody)
 
     // Send request to Google Text-to-Speech API
     const response = await fetch(apiUrl, {
